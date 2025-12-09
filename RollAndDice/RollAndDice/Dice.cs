@@ -22,32 +22,40 @@ public class Dice
     private static List<int> Roll(int maxValue, int amountOfDices, int diceRule)
     {
         List<int> diceResult = [];
+        Random random = new();
 
         for (int i = 0; i < amountOfDices; i++)
         {
-            diceResult.Add(new Random().Next(1, maxValue + 1));
+            diceResult.Add(random.Next(1, maxValue + 1));
         }
 
         switch (diceRule)
         {
             case 1:
-                var minimumNumberIndex = diceResult.FindIndex(num => num == 1);
-
-                if (minimumNumberIndex != -1) 
+                for (int i = 0; i < diceResult.Count; i++)
                 {
-                    PrintWithColor($"REROLLING THE {minimumNumberIndex + 1}th DICE!", ConsoleColor.Red);
-                    diceResult[minimumNumberIndex] = new Random().Next(2, maxValue); 
+                    while (diceResult[i] == 1)
+                    {
+                        PrintWithColor($"REROLLING THE {i + 1}th DICE!", ConsoleColor.Red);
+
+                        var newRoll = random.Next(1, maxValue + 1);
+                        diceResult[i] = newRoll;
+                    }
                 }
-                
                 break;
             case 2:
-                var maxNumberIndex = diceResult.FindIndex(num => num == maxValue);
-
-                if (maxNumberIndex != -1)
+                for (int i = 0; i < diceResult.Count; i++)
                 {
-                    PrintWithColor($"EXPLODING THE {maxNumberIndex + 1}th DICE!", ConsoleColor.Red);
-                    var secondRollResult = new Random().Next(maxValue);
-                    diceResult[maxNumberIndex] = diceResult[maxNumberIndex] + secondRollResult;
+                    while (diceResult[i] >= maxValue)
+                    {
+                        PrintWithColor($"EXPLODING THE {i + 1}th DICE!", ConsoleColor.Red);
+
+                        var extra = random.Next(1, maxValue + 1);
+                        diceResult[i] += extra;
+
+                        if (extra < maxValue)
+                            break; // 
+                    }
                 }
                 break;
         }
@@ -94,7 +102,7 @@ public class Dice
                 HandleDiceRules();
                 break;
             case "n" or "N":
-                Roll(_diceSize, _diceSize, 0);
+                Roll(_diceSize, _dicesToRoll, 0);
                 break;
             default:
                 Console.Clear();
